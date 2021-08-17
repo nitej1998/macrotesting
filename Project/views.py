@@ -11,7 +11,7 @@ from queue import Queue
 import pythoncom
 import threading
 from queue import Queue
-from .logger import logger
+
 
 @app.route("/")
 def default():
