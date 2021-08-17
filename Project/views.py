@@ -14,6 +14,28 @@ from queue import Queue
 
 @app.route("/")
 def default():
+    if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\simpleMacroForPython.xlsm"):
+        pythoncom.CoInitialize()
+        xl = win32.Dispatch('Excel.Application')
+        xl.Application.visible = False
+        file_path = "D:\\home\\ProcessingUnit\\TempSingleFile\\simpleMacroForPython.xlsm"
+        separator_char = os.sep
+        try:
+            wb = xl.Workbooks.Open(os.path.abspath(file_path))
+            xl.Application.run("simpleMacroForPython.xlsm!main.simpleMain")
+            # file_path.split(sep=separator_char)[-1] + "!main.simpleMain" 
+            wb.Save()
+            wb.Close()
+            xl.Application.Quit()
+            del xl
+        except Exception as ex:
+            xl.Workbooks(1).Close(SaveChanges=0)
+            xl.Application.Quit()
+            xl=0
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print(message)
+
     return jsonify("Every thing is working fine")
 
 @app.route("/macro", methods=["POST", "Get"])
