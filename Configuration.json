@@ -1,0 +1,21 @@
+{
+    "ShareName": "wmplans",
+    "FileStorageDrive": "S:\\",
+    "StgAccountName": "wmflowstoragestaging",
+    "StgAccountKey": "hheyqwMm/Vn+10RGGCVkHF80I83pNvSlxD0jEkJblxlgJIMmWxmggu3A3rI1WP6yWPKpY6CzOAp5lP/Nx5pjMg==",
+    "Envirolment": "Staging",
+    "LoggingLevel": "DEBUG",
+    "YourLocalPath": "D:\\home\\ProcessingUnit\\LocalDocuments",
+    "Tempzipfolder": "D:\\home\\ProcessingUnit\\TempZip",
+    "Tempmultiplefilefolder": "D:\\home\\ProcessingUnit\\TempMultipleFile",
+    "Tempzipmultiplefilefolder": "D:\\home\\ProcessingUnit\\TempZip\\MultipleFiles",
+    "Tempsinglefile": "D:\\home\\ProcessingUnit\\TempSingleFile",
+    "LogFilePath": "D:\\home\\ProcessingUnit\\LogFiles",
+    "Staging":"DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:wmdco.database.windows.net;DATABASE=DCOSTG;UID=wmdcodb;PWD=DC0@WMPr0ddb!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30",
+    "Version":"1.0.0",
+    "ProAccountName":"wmflowstoragestaging",
+    "ProAccountKey":"lSiIhKe891gih81Mbs6QpmSJqJn88oVWVzFhYmbO6dzQPLhH6cQ8nfnYzn5ntv2lGKUoE3t7hMCYLtVfBNrZdw==",
+    "FilePath": "MacroPOC"
+    
+}
+    

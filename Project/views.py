@@ -1,5 +1,10 @@
 from Project import app
 from flask import jsonify, request
+from azure.storage.common.models import LocationMode
+from Project.azure import AZURE, getListOfFiles, create_directory_local, share_name
+from .logger import logger, get_time, config_dic
+from .models import DB
+from .azure import AZURE,share_name, shared_access_signature
 
 
 import sys  
@@ -11,80 +16,58 @@ from queue import Queue
 import pythoncom
 import threading
 from queue import Queue
-
+import base64
 
 @app.route("/")
 def default():
-    if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\simpleMacroForPython.xlsm"):
-        pythoncom.CoInitialize()
-        xl = win32.Dispatch('Excel.Application')
-        xl.Application.visible = False
-        file_path = "D:\\home\\ProcessingUnit\\TempSingleFile\\simpleMacroForPython.xlsm"
-        separator_char = os.sep
-        try:
-            wb = xl.Workbooks.Open(os.path.abspath(file_path))
-            xl.Application.run("simpleMacroForPython.xlsm!main.simpleMain")
-            # file_path.split(sep=separator_char)[-1] + "!main.simpleMain" 
-            wb.Save()
-            wb.Close()
-            xl.Application.Quit()
-            del xl
-        except Exception as ex:
-            xl.Workbooks(1).Close(SaveChanges=0)
-            xl.Application.Quit()
-            xl=0
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print(message)
+    # if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\simpleMacroForPython.xlsm"):
+    #     pythoncom.CoInitialize()
+    #     xl = win32.Dispatch('Excel.Application')
+    #     xl.Application.visible = False
+    #     file_path = "D:\\home\\ProcessingUnit\\TempSingleFile\\simpleMacroForPython.xlsm"
+    #     separator_char = os.sep
+    #     try:
+    #         wb = xl.Workbooks.Open(os.path.abspath(file_path))
+    #         xl.Application.run("simpleMacroForPython.xlsm!main.simpleMain")
+    #         # file_path.split(sep=separator_char)[-1] + "!main.simpleMain" 
+    #         wb.Save()
+    #         wb.Close()
+    #         xl.Application.Quit()
+    #         del xl
+    #     except Exception as ex:
+    #         xl.Workbooks(1).Close(SaveChanges=0)
+    #         xl.Application.Quit()
+    #         xl=0
+    #         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+    #         message = template.format(type(ex).__name__, ex.args)
+    #         print(message)
 
     return jsonify("Every thing is working fine")
 
 @app.route("/macro", methods=["POST", "Get"])
 def macroroute():
-    if os.path.exists("C:\\Users\\Admin\\Downloads\\testing.xlsm"):
-        print("1"*40)
-        pythoncom.CoInitialize()
-        xl=win32com.client.Dispatch("Excel.Application")
-        print("2"*40)
-        wb = xl.Workbooks.Open(os.path.abspath("C:\\Users\\Admin\\Downloads\\testing.xlsm"))
-        print("3"*40)
-        xl.Application.Run("testing.xlsm!Module1.Macro2")
-        print("4"*40)
-        wb.Save()
-        wb.Close()
-        #xl.Application.Save("C:/Users/Admin/Downloads/testing.xlsm")
-        # if you want to save then uncomment this line and change delete the ", ReadOnly=1" part from the open function.
-        xl.Application.Quit() # Comment this out if your excel script closes
-        print("5"*40)
-        del xl
-        print("6"*40)
- 
-    return jsonify("hello world")
-
-@app.route("/macro1", methods=["POST", "Get"])
-def macro1():
-    # C:\\Users\\Admin\\Downloads\\simpleMacroForPython.xlsm
-    if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\testing.xlsm"):
+    az = AZURE()
+    if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"):
         pythoncom.CoInitialize()
         xl = win32.Dispatch('Excel.Application')
-        xl.Application.visible = False
-        file_path = "D:\\home\\ProcessingUnit\\TempSingleFile\\testing.xlsm"
-        separator_char = os.sep
-        try:
-            wb = xl.Workbooks.Open(os.path.abspath(file_path))
-            xl.Application.run("testing.xlsm!Module1.Macro2")
-            # file_path.split(sep=separator_char)[-1] + "!main.simpleMain" 
-            wb.Save()
-            wb.Close()
-            xl.Application.Quit()
-            del xl
-        except Exception as ex:
-            xl.Workbooks(1).Close(SaveChanges=0)
-            xl.Application.Quit()
-            xl=0
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print(message)
-
+        path1 = "D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"
+        wb = xl.Workbooks.Open(os.path.abspath(path1))
+        xl.Application.run("helloworld.xlsm!Module1.helloworldmacro")
+        wb.Save()
+        wb.Close()
+        xl.Application.Quit()
+        del xl
+        print("1"*40)
+        '''inserting file to azure'''
+        filepath = "D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx"
+        filename = "output1.xlsx"
+        res = config_dic["FilePath"]
+        data = open(filepath, 'rb').read()
+        blobdata = base64.b64encode(data).decode('UTF-8')
+        print("2"*40)
+        az.insert_file_azure(share_name, res, filename, base64.b64decode(blobdata))
+        print("3"*40)
     return jsonify("hello world")
+
+
 
