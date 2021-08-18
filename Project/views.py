@@ -1,6 +1,6 @@
 from Project import app
 from flask import jsonify, request
-from azure.storage.common.models import LocationMode
+# from azure.storage.common.models import LocationMode
 from Project.azure import AZURE, getListOfFiles, create_directory_local, share_name
 from .logger import logger, get_time, config_dic
 from .models import DB
