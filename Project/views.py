@@ -19,6 +19,7 @@ from queue import Queue
 import base64
 from pywintypes import com_error
 import time
+import psutil
 
 @app.route("/")
 def default():
@@ -57,13 +58,18 @@ def default():
 @app.route("/macro", methods=["POST", "Get"])
 def macroroute():
     az = AZURE()
-    if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"):
-        
-        try:
+    try:
+        for proc in psutil.process_iter():
+            if proc.name() == "excel.exe":
+                proc.kill()
+        if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"):
+            listOfFiles = getListOfFiles((config_dic["YourLocalPath"]) + '\\')
+            if listOfFiles:
+                for i in listOfFiles:
+                    os.remove(i)
+                    info(f"deleted old file: {i}")    
+            
             info("0"*40)
-            if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx"):
-                os.remove("D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx")
-                print("5"*40)
             pythoncom.CoInitialize()
             xl = win32.Dispatch('Excel.Application')
             xl.Application.visible = False
@@ -74,19 +80,26 @@ def macroroute():
             wb.Close()
             xl.Application.Quit()
             del xl
+            '''Killing excel in task manager'''
+            for proc in psutil.process_iter():
+                if proc.name() == "excel.exe":
+                    proc.kill()
             info("1"*40)
-            '''inserting file to azure'''
-            filepath = "D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx"
-            filename = "output1.xlsx"
-            res = config_dic["FilePath"]
-            data = open(filepath, 'rb').read()
-            blobdata = base64.b64encode(data).decode('UTF-8')
-            info("2"*40)
-            az.insert_file_azure(share_name, res, filename, base64.b64decode(blobdata))
-            info("3"*40)
-            os.remove("D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx")
-        except com_error as e:
-            pass
-            # com_error
+            listOfFiles = getListOfFiles((config_dic["YourLocalPath"]) + '\\')
+            if listOfFiles:
+                for i in listOfFiles:
+                    filepath = i
+                    filename = i.split("\\")[-1]
+                    res = config_dic["FilePath"]
+                    data = open(filepath, 'rb').read()
+                    blobdata = base64.b64encode(data).decode('UTF-8')
+                    info("2"*40)
+                    '''inserting file to azure'''
+                    az.insert_file_azure(share_name, res, filename, base64.b64decode(blobdata))
+                    info("3"*40)
+                    os.remove(i)
+    except com_error as e:
+        pass
+        # com_error
             
     return jsonify("hello world")
