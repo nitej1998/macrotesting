@@ -59,9 +59,16 @@ def default():
 def macroroute():
     az = AZURE()
     try:
+        # for proc in psutil.process_iter():
+        #     if proc.name() == "excel.exe":
+        #         proc.kill()
         for proc in psutil.process_iter():
-            if proc.name() == "excel.exe":
-                proc.kill()
+            try:
+                PROCNAME = "excel.exe"
+                if proc.name().lower() == PROCNAME.lower():
+                    proc.kill()
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
         if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"):
             listOfFiles = getListOfFiles((config_dic["YourLocalPath"]) + '\\')
             if listOfFiles:
@@ -80,6 +87,13 @@ def macroroute():
             wb.Close()
             xl.Application.Quit()
             del xl
+            for proc in psutil.process_iter():
+                try:
+                    PROCNAME = "excel.exe"
+                    if proc.name().lower() == PROCNAME.lower():
+                        proc.kill()
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    pass
             '''Killing excel in task manager'''
             for proc in psutil.process_iter():
                 if proc.name() == "excel.exe":
@@ -99,6 +113,8 @@ def macroroute():
                     info("3"*40)
                     os.remove(i)
     except com_error as e:
+        info("---------------------------------------------------------------------------------------------")
+        info(e)
         pass
         # com_error
             
