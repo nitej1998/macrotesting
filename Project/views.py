@@ -19,9 +19,6 @@ from queue import Queue
 import base64
 from pywintypes import com_error
 import time
-_DELAY = 0.05  # seconds
-_TIMEOUT = 60.0  # seconds
-
 
 @app.route("/")
 def default():
@@ -61,17 +58,18 @@ def default():
 def macroroute():
     az = AZURE()
     if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"):
-        pythoncom.CoInitialize()
-        xl = win32.Dispatch('Excel.Application')
-        xl.Application.visible = False
-        path1 = "D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"
         
         try:
+            pythoncom.CoInitialize()
+            xl = win32.Dispatch('Excel.Application')
+            xl.Application.visible = False
+            path1 = "D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"
             wb = xl.Workbooks.Open(os.path.abspath(path1))
             xl.Application.run("helloworld.xlsm!Module1.helloworldmacro")
             wb.Save()
             wb.Close()
             xl.Application.Quit()
+            xl.kill
             del xl
             '''inserting file to azure'''
             filepath = "D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx"
@@ -79,10 +77,12 @@ def macroroute():
             res = config_dic["FilePath"]
             data = open(filepath, 'rb').read()
             blobdata = base64.b64encode(data).decode('UTF-8')
-            print("0"*40)
+            info("0"*40)
             az.insert_file_azure(share_name, res, filename, base64.b64decode(blobdata))
-            print("0"*40)
-        except com_error as e:
+            os.remove(filepath)
+            info("0"*40)
+        except Exception as e:
             pass
+            # com_error
             
     return jsonify("hello world")
