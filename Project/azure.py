@@ -9,7 +9,7 @@ from azure.storage.fileshare import generate_account_sas, ResourceTypes, Account
 from datetime import datetime, timedelta
 
 from .logger import config_dic,exception, info, warning
-from .models import DB
+# from .models import DB
 
 if config_dic["Envirolment"] == "Staging" or config_dic["Envirolment"] == "Development":
     account_name = config_dic["StgAccountName"]
@@ -353,21 +353,4 @@ def create_directory_local(folder_path):
         exception(sys._getframe().f_code.co_name, os.path.basename(__file__), data, Error=e)
         return({"message": "fail"})
 
-connection_string = "DefaultEndpointsProtocol=https;AccountName=wmflowstoragestaging;AccountKey=hheyqwMm/Vn+10RGGCVkHF80I83pNvSlxD0jEkJblxlgJIMmWxmggu3A3rI1WP6yWPKpY6CzOAp5lP/Nx5pjMg==;EndpointSuffix=core.windows.net"
-share_service_client = ShareServiceClient.from_connection_string(connection_string)
 
-
-shared_access_signature = generate_account_sas(
-    account_name,
-    account_key,
-    resource_types=ResourceTypes(service=True, container=True, object=True),
-    permission=AccountSasPermissions(read=True),
-    expiry=datetime.utcnow() + timedelta(hours=1000)
-)
-
-bb = DB()
-query = "Update [Configuration] set [SASToken] = ?"
-values = (shared_access_signature,)
-bb.update(query,values)
-# print(shared_access_key)
-# print(shared_access_signature)

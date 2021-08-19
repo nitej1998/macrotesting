@@ -3,8 +3,8 @@ from flask import jsonify, request
 # from azure.storage.common.models import LocationMode
 from Project.azure import AZURE, getListOfFiles, create_directory_local, share_name
 from .logger import info, logger, get_time, config_dic
-from .models import DB
-from .azure import AZURE,share_name, shared_access_signature
+# from .models import DB
+from .azure import AZURE,share_name
 
 
 import sys  
@@ -60,6 +60,10 @@ def macroroute():
     if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\helloworld.xlsm"):
         
         try:
+            info("0"*40)
+            if os.path.exists("D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx"):
+                os.remove("D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx")
+                print("5"*40)
             pythoncom.CoInitialize()
             xl = win32.Dispatch('Excel.Application')
             xl.Application.visible = False
@@ -69,19 +73,19 @@ def macroroute():
             wb.Save()
             wb.Close()
             xl.Application.Quit()
-            xl.kill
             del xl
+            info("1"*40)
             '''inserting file to azure'''
             filepath = "D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx"
             filename = "output1.xlsx"
             res = config_dic["FilePath"]
             data = open(filepath, 'rb').read()
             blobdata = base64.b64encode(data).decode('UTF-8')
-            info("0"*40)
+            info("2"*40)
             az.insert_file_azure(share_name, res, filename, base64.b64decode(blobdata))
-            os.remove(filepath)
-            info("0"*40)
-        except Exception as e:
+            info("3"*40)
+            os.remove("D:\\home\\ProcessingUnit\\TempSingleFile\\output1.xlsx")
+        except com_error as e:
             pass
             # com_error
             
